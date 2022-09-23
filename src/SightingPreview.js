@@ -2,11 +2,12 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 
 const SightingPreview = (props) => {
+  console.log(props)
   return (
     <Card bg="dark">
       <Card.Body>
         <Card.Title>
-          {`${props.data.YEAR} ${props.data.SEASON} ${props.data.MONTH}`}
+          {`${props.data.id} ${props.data.date} ${props.data.location}`}
         </Card.Title>
       </Card.Body>
     </Card>

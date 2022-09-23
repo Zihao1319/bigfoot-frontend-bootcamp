@@ -19,11 +19,13 @@ const Sighting = () => {
           setSighting(response.data);
         });
     }
+    console.log(sighting)
     // Only run this effect on change to sightingIndex
   }, [sightingIndex]);
 
   // Update sighting index in state if needed to trigger data retrieval
   const params = useParams();
+  console.log(params)
   if (sightingIndex !== params.sightingIndex) {
     setSightingIndex(params.sightingIndex);
   }
