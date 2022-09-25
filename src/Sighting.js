@@ -2,12 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Card from "react-bootstrap/Card";
-
 import { BACKEND_URL } from "./constants.js";
+import { ListGroup, Form, Button } from "react-bootstrap";
 
 const Sighting = () => {
   const [sightingIndex, setSightingIndex] = useState();
   const [sighting, setSighting] = useState();
+  const [comments, setComments] = useState([]);
+  const [commentContent, setCommentContent] = useState("");
 
   useEffect(() => {
     // If there is a sightingIndex, retrieve the sighting data
@@ -15,17 +17,21 @@ const Sighting = () => {
       axios
         .get(`${BACKEND_URL}/sightings/${sightingIndex}`)
         .then((response) => {
-          console.log(response.data);
+          // console.log(response.data);
           setSighting(response.data);
         });
+      axios
+        .get(`${BACKEND_URL}/sightings/${sightingIndex}/comments`)
+        .then((response) => {
+          setComments(response.data);
+        });
     }
-    console.log(sighting)
+
     // Only run this effect on change to sightingIndex
   }, [sightingIndex]);
 
   // Update sighting index in state if needed to trigger data retrieval
   const params = useParams();
-  console.log(params)
   if (sightingIndex !== params.sightingIndex) {
     setSightingIndex(params.sightingIndex);
   }
@@ -40,16 +46,74 @@ const Sighting = () => {
     }
   }
 
+  const CommentForm = () => {
+    const handleChange = (e) => {
+      setCommentContent(e.target.value);
+    };
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      console.log("submit button clicked");
+
+      if (commentContent) {
+        axios
+          .post(`${BACKEND_URL}/sightings/${sightingIndex}/comments`, {
+            content: commentContent,
+          })
+          .then((res) => {
+            setCommentContent("");
+            // refresh the sightings
+            return axios.get(
+              `${BACKEND_URL}/sightings/${sightingIndex}/comments`
+            );
+          })
+          .then((res) => {
+            setComments(res.data);
+            console.log(comments);
+          });
+      }
+    };
+
+    return (
+      <Form onSubmit={handleSubmit}>
+        <Form.Group>
+          <Form.Label>Comments:</Form.Label>
+          <Form.Control
+            type="text"
+            name="comments"
+            placeholder="So what do you feel?"
+            onChange={handleChange}
+            value={commentContent}
+          ></Form.Control>
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </Form>
+    );
+  };
+
+  const commentsComponent = () => {
+    return (
+      <ListGroup.Item>
+        {comments.map((comment) => (
+          <div key={comment.id}>{comment.content}</div>
+        ))}
+      </ListGroup.Item>
+    );
+  };
+
   return (
     <div>
       <Link to="/">Home</Link>
       <Card bg="dark">
         <Card.Body>
           <Card.Title>
-            {sighting &&
-              `${sighting.YEAR} ${sighting.SEASON} ${sighting.MONTH}`}
+            {sighting && `${sighting.id} ${sighting.date} ${sighting.location}`}
           </Card.Title>
           {sightingDetails}
+          {CommentForm()}
+          <ListGroup>{commentsComponent()}</ListGroup>
         </Card.Body>
       </Card>
     </div>

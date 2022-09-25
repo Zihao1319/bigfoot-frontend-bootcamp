@@ -2,7 +2,7 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 
 const SightingPreview = (props) => {
-  console.log(props)
+  console.log(props);
   return (
     <Card bg="dark">
       <Card.Body>
